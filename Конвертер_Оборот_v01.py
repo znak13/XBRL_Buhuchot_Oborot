@@ -32,8 +32,8 @@ def convert_oborot():
 
     file_matrica = 'Матрица_3_1.xlsx'           # название файла - Матрица
     sheet_name   = 'Оборот'                     # имя вкладки в Матрице
-    # file_shablon = 'Шаблон_Оборот_3_1_(квартал).xlsx'   # название файла - Шаблон
-    file_shablon = 'Шаблон_Оборот_3_1_(месяц).xlsx'       # название файла - Шаблон
+    file_shablon = 'Шаблон_Оборот_3_1_(квартал).xlsx'   # название файла - Шаблон
+    # file_shablon = 'Шаблон_Оборот_3_1_(месяц).xlsx'       # название файла - Шаблон
 
     # Загружаем данные из Матрицы
     df_matrica = load_matrica(file_matrica, sheet_name)
@@ -71,7 +71,7 @@ def convert_oborot():
 
         # перебор строк в файле 'report'
         for row_report in range(begin_row_df_report, end_row_df_report + 1):
-            indicator = df_report.loc[row_report, 2].replace('.', '')
+            indicator = str(df_report.loc[row_report, 2]).replace('.', '')
 
             # пребор строк в xbrl файле
             for row_xbrl in range(start_row, ws_xbrl.max_row + 1):
