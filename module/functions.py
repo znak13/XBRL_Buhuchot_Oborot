@@ -113,3 +113,44 @@ def find_row(df, string, string_col=1):
     sys.exit("Ошибка!")
 
 # %%
+def Codesofsheets(wb_xbrl):
+    codes = {}
+    for sheet in wb_xbrl.sheetnames:
+        ws_xbrl = wb_xbrl[sheet]
+        ws_xbrl_cell = ws_xbrl.cell(3, 1)
+        codes[ws_xbrl_cell.value] = sheet
+        # print(sheet, ws_xbrl_cell.value)
+    return codes
+
+# %%
+
+def delNullSheets(wb_xbrl, df_matrica, sheetsCodes, codesNull):
+    """Удаляем незаполненные вкладки"""
+
+    # удаляем из списка вкладку '_dropDownSheet'
+    sheetsCodes.pop('Добавочный капитал ')
+
+    for code in sheetsCodes:
+        if code not in df_matrica["URL"].values:
+            sheetName = sheetsCodes[code]
+            wb_xbrl.remove(wb_xbrl[sheetName])
+
+    for code in codesNull:
+        sheetName = sheetsCodes[code]
+        wb_xbrl.remove(wb_xbrl[sheetName])
+
+# %%
+if __name__ == "__main__":
+    dirName = r'd:\Clouds\YandexDisk\Git\XBRL_Buhuchot_Oborot\Шаблоны'
+    file_shablon = dirName + '\\' + 'Шаблон_БухОтч_3_2_год.xlsx'
+    wb_xbrl = openpyxl.load_workbook(filename=file_shablon)
+    sheetCode = Codesofsheets(wb_xbrl)
+
+    file_matrica = 'Матрица_3_2_год.xlsx'
+    sheet_name = 'БухОтч'
+    df_matrica = load_matrica(file_matrica, sheet_name, file_dir=dirName+"\\")
+
+    for sheet in df_matrica.index.values.tolist():
+        code = df_matrica.loc[sheet, 'URL']
+        sheetName = sheetCode[code]
+

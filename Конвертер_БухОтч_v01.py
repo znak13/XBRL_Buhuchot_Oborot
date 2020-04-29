@@ -7,15 +7,24 @@ from module.functions import *
 def convert_balans():
     """ Конвертер данных БухОтчетности"""
 
-    file_matrica = 'Матрица_1_3_1_long.xlsx'        # название файла - Матрица
-    sheet_name   = 'БухОтч'                         # имя вкладки в Матрице
-    file_shablon = 'Шаблон_БухОтч_1_3_1_long.xlsx'  # название файла - Шаблон
+    # название файла - Матрица
+    # file_matrica = 'Матрица_1_3_1_long.xlsx'
+    file_matrica = 'Матрица_3_2_год.xlsx'
+
+    sheet_name = 'БухОтч'   # имя вкладки в Матрице
+
+    # название файла - Шаблон
+    # file_shablon = 'Шаблон_БухОтч_1_3_1_long.xlsx'
+    file_shablon = 'Шаблон_БухОтч_3_2_год.xlsx'
 
     # Загружаем данные из Матрицы
     df_matrica = load_matrica(file_matrica, sheet_name)
     # Создаем новый файл отчетности на основе файла-шаблона и загружаем из него данные
     wb_xbrl, file_new_name = load_xbrl(file_shablon)
-    #
+    # Коды вкладок
+    sheetsCodes = Codesofsheets(wb_xbrl)
+
+    codesNull =[] # коды вкладок, для которых отсутствуют файлы отчетности
     # перебираем все вкладки в созданном файле отчетности
     for sheet in df_matrica.index.values.tolist():
         print(f'...загружаем форму: "{sheet}"')
@@ -25,6 +34,13 @@ def convert_balans():
         file_name = str(df_matrica.loc[sheet, 'file'])
         file_dir = r'./Отчетность/БухОтч/'
         file_report = file_dir + file_name
+
+        # Проверяем есть ли файл.
+        if not os.path.exists(file_report):
+            # Если файла нет, то выбираем следующую вкладку
+            codesNull.append(df_matrica.loc[sheet, 'URL'])
+            continue
+
         # загрузка данныз из файла 'report'
         df_report = load_report(file_report)
         # print(file)
@@ -47,8 +63,14 @@ def convert_balans():
         row_range = end_row_df_report - begin_row_df_report + 1
         col_range = end_col_df_report - begin_col_df_report + 1
 
+        #==============================================================
+        # Реальное имя вкладки
+        code = df_matrica.loc[sheet, 'URL']
+        sheetName = sheetsCodes[code]
+        #==============================================================
+
         # загружаем нужную вкладку из файла отчетности
-        ws_xbrl = wb_xbrl[sheet]
+        ws_xbrl = wb_xbrl[sheetName]
 
         for row in range(row_range):
             for col in range(col_range):
@@ -63,6 +85,8 @@ def convert_balans():
                     # Форматируем ячейку
                     ws_xbrl_cell.alignment = Alignment(horizontal='right')
 
+    # Удаляем незаполненные вкладки
+    delNullSheets(wb_xbrl, df_matrica, sheetsCodes, codesNull)
     # Сохраняем в файл отчетности xbrl
     wb_xbrl.save(file_new_name)
 
