@@ -36,9 +36,11 @@ def convert_balans():
         file_report = file_dir + file_name
 
         # Проверяем есть ли файл.
-        if not os.path.exists(file_report):
-            # Если файла нет, то выбираем следующую вкладку
+        if not os.path.exists(file_report): # Если файла нет, то
+            # запоминаем код листа,
             codesNull.append(df_matrica.loc[sheet, 'URL'])
+            print(f'- форма "{sheet}" не заполнена, т.к. файл "{file_name}" отсутствует')
+            # выбираем следующую вкладку
             continue
 
         # загрузка данныз из файла 'report'
@@ -85,11 +87,20 @@ def convert_balans():
                     # Форматируем ячейку
                     ws_xbrl_cell.alignment = Alignment(horizontal='right')
 
+    # Добавляем в формы периоды
+    addPeriod(df_matrica, wb_xbrl, sheetsCodes)
     # Удаляем незаполненные вкладки
     delNullSheets(wb_xbrl, df_matrica, sheetsCodes, codesNull)
+    # Добавляем формы с общими данными
+    addInfoSheets(wb_xbrl)
+
     # Сохраняем в файл отчетности xbrl
     wb_xbrl.save(file_new_name)
 
+    correctStyle(file_new_name)
+
+
+    # wb_xbrl._sheets
 
 # %%
 
