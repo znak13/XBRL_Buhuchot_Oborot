@@ -55,9 +55,8 @@ def analiz_data_number_point (cell):
     if type (cell) == str:
         cell = cell.replace(' ', '')
         if len (cell.split(',')) == 2 and \
-                (cell.split(',')[0].isdigit() or \
-                (cell.split(',')[0][0] == "-" and
-                 cell.split(',')[0][1:].isdigit())) and \
+                (cell.split(',')[0].isdigit() or (cell.split(',')[0][0] == "-" and
+                cell.split(',')[0][1:].isdigit())) and \
                 cell.split(',')[1].isdigit():
 
             part1 = cell.split(',')[0]
