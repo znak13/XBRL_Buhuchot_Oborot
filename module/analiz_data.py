@@ -90,6 +90,7 @@ def analiz_data_number_shtuk (cell):
 
 def analiz_data_all (cell):
     """ Перебор всех возможных анализов данных """
+
     cell_new = analiz_data_data(cell)
     if not cell_new:
         cell_new = analiz_data_valuta(cell)
@@ -103,11 +104,14 @@ def analiz_data_all (cell):
                         cell_new = analiz_data_number_shtuk(cell)
                         if not cell_new:
                             cell_new = cell
-    return cell_new
+                            # print(f'Анализ данных не дал результата: {cell}')
+
+    return '0.00' if cell_new != cell_new else cell_new
+    # return '0.00' if (cell_new != cell_new or cell_new == 'X') else cell_new
 
 # ==================================================================================
 
 if __name__ == "__main__":
-    print (analiz_data_all ('23 551 234') )
+    qq = analiz_data_number_00 (float("nan"))
 
     # print ( analiz_data_number_point ('14534,56' ) )

@@ -12,28 +12,30 @@ import sys
 import os
 
 from tkinter import Tk
-
 Tk().withdraw()
+
+from module.globals import *
+global log
 
 # %%
 
 # файл с ошибками
-errors_file = 'errors.txt'
+# errors_file = 'errors.txt'
 ERRORS = []
 
 
-def write_errors():
+def write_errors(file):
     """ Записываем ошибки в файл и открываем этот файл в Блокноте"""
     if not ERRORS:
         ERRORS.append('Ошибок не выявлено!')
 
-    with open(errors_file, "w") as file:
+    with open(file, "w") as f:
         for k in ERRORS:
-            file.write(str(k) + '\n\n')
+            f.write(str(k) + '\n\n')
 
     # Открываем файл ошибок в Блокноте
     notepad = r'%windir%\system32\notepad.exe'
-    file = notepad + ' ' + os.path.abspath(errors_file)
+    file = notepad + ' ' + file
     os.system(file)
 
 
@@ -59,7 +61,8 @@ def load_matrica(matrica, sheet_name, index_col=1, file_dir=r'./Шаблоны/'
 # %%
 def load_report(file_name, sheet_name='TDSheet'):
     """ загружвем данные из таблиц БухОтчетности """
-    df = pd.read_excel(file_name, sheet_name=sheet_name, header=None)
+    # df = pd.read_excel(file_name, sheet_name=sheet_name, header=None)
+    df = pd.read_excel(file_name, header=None)
     # устанавливаем начальный индекс не c 0, а c 1
     df.index += 1
     df.columns += 1
@@ -68,13 +71,16 @@ def load_report(file_name, sheet_name='TDSheet'):
 
 # %%
 
-def load_xbrl(file_shablon: str, file_dir=r'./Шаблоны/'):
-    """ Загрузка данных из шаблона в новый файл xbrl"""
-    # file_shablon - имя файла-шиблона
+def load_xbrl(file_shablon: str, file_dir=dir_shablon):
+    """ Создаем новый файл xbrl"""
+    # file_shablon - имя файла-шаблона
 
     # название нового файла-отчетности xbrl
     print(f'Создание файла отчетности....')
-    file_new_name = asksaveasfilename(filetypes=(("xlsx files", "*.xlsx"), ("All files", "*.*")))
+    file_new_name = asksaveasfilename(
+        initialdir=dir_reports,
+        title="Имя нового файла отчетности...",
+        filetypes=(("xlsx files", "*.xlsx"), ("All files", "*.*")))
     # Добавляем расширение файла
     file_new_name = file_new_name + '.xlsx'
     # # запоминаем путь к файлу
@@ -87,10 +93,10 @@ def load_xbrl(file_shablon: str, file_dir=r'./Шаблоны/'):
     shutil.copyfile(file_dir + file_shablon, file_new_name)
     print(f'создан файл: {file_new_name}')
 
-    # Загружаем данные из файла таблицы xbrl
-    wb = openpyxl.load_workbook(filename=file_new_name)
+    # # Загружаем данные из файла таблицы xbrl
+    # wb = openpyxl.load_workbook(filename=file_new_name)
 
-    return wb, file_new_name
+    return file_new_name
 
 
 # %%
@@ -107,10 +113,11 @@ def find_row(df, string, string_col=1):
         if title == str(string):  # title.startswith(str(string))
             return row
 
-    print('.......ERROR!.......')
+    print(f'.......ERROR!.......'
+          f'Раздел: "{string}" в файле не найден')
     ERRORS.append(f'Раздел: "{string}" в файле не найден')
-    write_errors()
-    sys.exit("Ошибка!")
+    # write_errors()
+    sys.exit()
 
 
 # %%
@@ -121,7 +128,6 @@ def Codesofsheets(wb_xbrl):
         ws_xbrl = wb_xbrl[sheet]
         ws_xbrl_cell = ws_xbrl.cell(3, 1)
         codes[ws_xbrl_cell.value] = sheet
-        # print(sheet, ws_xbrl_cell.value)
 
     # исключаем из списка вкладку '_dropDownSheet'
     for code in codes:
@@ -133,60 +139,6 @@ def Codesofsheets(wb_xbrl):
 
 
 # %%
-
-def delNullSheets(wb_xbrl, df_matrica, sheetsCodes, codesNull):
-    """Удаляем незаполненные вкладки"""
-
-    # sheetsCodes.pop('Добавочный капитал ')  # это не ошибка!
-
-    for code in sheetsCodes:
-        if code not in df_matrica["URL"].values:
-            sheetName = sheetsCodes[code]
-            wb_xbrl.remove(wb_xbrl[sheetName])
-
-    for code in codesNull:
-        sheetName = sheetsCodes[code]
-        wb_xbrl.remove(wb_xbrl[sheetName])
-
-
-# %%
-def addPeriod(df_matrica, wb_xbrl):
-    """Добавляем в формы периоды"""
-
-    # Коды вкладок
-    sheetsCodesID = Codesofsheets(wb_xbrl)
-
-    for code in sheetsCodesID:
-        sheetName = sheetsCodesID[code]
-        per1_cell = df_matrica[df_matrica["URL"] == code]["per1_cell"][0]
-        per2_cell = df_matrica[df_matrica["URL"] == code]["per2_cell"][0]
-        period1 = df_matrica[df_matrica["URL"] == code]["period1"][0]
-        period2 = df_matrica[df_matrica["URL"] == code]["period2"][0]
-        ws = wb_xbrl[sheetName]
-        if per1_cell != '-':
-            ws[per1_cell].value = period1
-        if per2_cell != '-':
-            ws[per2_cell].value = period2
-
-    pass
-
-
-# %%
-def addInfoSheets(wb_xbrl):
-    """ Добавляем формы с общими данными"""
-
-    sheets = wb_xbrl._sheets
-    # Загружаем данные из файла таблицы 'fileInfo'
-    wb_fileInfo = loadInfoSheets()
-    for sheet in wb_fileInfo._sheets:
-        sheets.append(sheet)
-
-    # или можно так вставить:
-    # lenSheets = len(sheets)
-    # sheets.insert(lenSheets, ws1_fileInfo)
-    # sheets.insert(lenSheets+1, ws2_fileInfo)
-
-
 def loadInfoSheets():
     """ Загружаем данные из файла с общими сведениями"""
     file_dir = r'./Шаблоны/'
@@ -194,7 +146,7 @@ def loadInfoSheets():
     # Загружаем данные из файла таблицы 'fileInfo'
     wb_fileInfo = openpyxl.load_workbook(filename=fileInfo)
 
-    sheetsIgnor = ['_dropDownSheet', "wqeqwqw"]  # список листов, которые добавлять не нужно
+    sheetsIgnor = ['_dropDownSheet']  # список листов, которые добавлять не нужно
     # исключаем ненужные листы
     for sheet in sheetsIgnor:
         try:
@@ -235,7 +187,7 @@ def correctStyle(fileName):
                 # Копируем цвет шрифта
                 if cell.font.color != None:  # проверяем установлен ли цвет шрифта
                     fontColor = cell.font.color.rgb
-                    # # красный цвет
+                    # красный цвет
                     # color_font = openpyxl.styles.colors.Color(rgb='FFFF0000')
                     if type(fontColor) == str:
                         color_font = openpyxl.styles.colors.Color(rgb=fontColor)
@@ -245,65 +197,57 @@ def correctStyle(fileName):
 
 
 # %%
-def inputPeriod():
-    """ Ввод периода отчетности """
-    reports = {'0': 'годовая',
-               '1': '1-ый квартал',
-               '2': '2-ой квартал',
-               '3': '3-ий квартал',
-               '4': '4-ый квартал'}
-    period = -1
-    attempt = 1
-    while period not in reports:
-        period = input(f"Период отчетности:\n"
-                       f"0 ==> {reports['0']}\n"
-                       f"1 ==> {reports['1']}\n"
-                       f"2 ==> {reports['2']}\n"
-                       f"3 ==> {reports['3']}\n"
-                       f"4 ==> {reports['4']}\n")
-        if period not in reports:
-            print(f'Выбор "{period}" - не верный. Попоробуйте ещё.\n')
-            attempt += 1
-            print(f'(попытка № {attempt})')
+def codesSheets(wb) -> dict:
+    """ Словарь: URL и наименования листов """
+    codes_sheets = {}
+    for sheet in wb.sheetnames:
+        ws_xbrl = wb[sheet]
+        ws_xbrl_cell = ws_xbrl.cell(3, 1)
+        codes_sheets[ws_xbrl_cell.value] = sheet
+        # print(sheet, ws_xbrl_cell.value)
 
-        else:
-            print(f'Выбрана отчетность: {reports[period]}')
+    # исключаем из списка вкладку '_dropDownSheet'
+    for code in codes_sheets:
+        if codes_sheets[code] == '_dropDownSheet':
+            codes_sheets.pop(code)
+            break
 
-    return int(period)
+    return codes_sheets
 
 # %%
-def datesInPeriods(nomberOfPeriod):
-    """ Даты в периодах"""
-    year = 2020
-    periods = {0:[date(year, 1,1), date(year,12,31)],
-               1:[date(year, 1,1), date(year, 3,31)],
-               2:[date(year, 4,1), date(year, 6,30)],
-               3:[date(year, 7,1), date(year, 9,30)],
-               4:[date(year,10,1), date(year,12,31)]
-               }
-    # print(periods[2][0].strftime("%Y-%m-%d"))
-    return periods[nomberOfPeriod]
+def sheetNameFromUrl(codesSheets: dict, shortURL: str) ->str:
+    """ Поиск имени вкладки по части кода формы"""
+    # shortURL - короткий код
+
+    for url in codesSheets:
+        if url.endswith(shortURL):
+            return codesSheets[url]
+
+    print(f'------>ERROR! - функция: "{sheetNameFromUrl.__name__}"')
+    ERRORS.append(f'В отчетном файле не найдено имя вкладки с кодом "{shortURL}"')
+    # write_errors(ERRORS, errors_file)
+    # sys.exit("Ошибка!")
 
 # %%
+def findFile(fileCode, file_dir=None):
+    """ Поиск нужного файла отчетности"""
+    # fileCode - начало названия файла
+    # список файлов в папке
+    fileList = os.listdir(file_dir)
+    for fileName in fileList:
+        if fileName.startswith(fileCode):
+            return fileName
 
-def insertPeriodInFile(period):
-    """ Вставляем даты выбранного периода в файл"""
+    # print(f'файл не найден')
+    log.error(f'файл отчетности не найден')
+    return False
 
-    # Загружаем данные из файла с периодами"""
-    file_dir = r'./Шаблоны/'
-    fileName = file_dir + "Периоды.xlsx"
-    wb = openpyxl.load_workbook(filename=fileName)
-    ws = wb['Периоды']
-    # Вписываем даты начали и конци периода
-    ws['B3'] = period[0].strftime("%Y-%m-%d")
-    ws['B4'] = period[1].strftime("%Y-%m-%d")
 
-    wb.save(fileName)
+
+
+
 
 # %%
 if __name__ == "__main__":
-    period = inputPeriod()
-    dates = datesInPeriods(period)
-    insertPeriodInFile(dates)
-
+    pass
 
