@@ -5,6 +5,7 @@ from module.functions import *
 from module import BuhOtch
 from module import logger
 from module.periods import Period
+import module.period_selection as selection
 
 from module.globals import *
 
@@ -13,9 +14,14 @@ from module.globals import *
 
 if __name__ == "__main__":
 
-    # Ввод периода отчетности
-    period = Period()
-    period.set()
+    # Выбор периода отчетности
+    year, quarter, dir_QuarterReports, fileNewName = selection.main()
+    dir_QuarterReports += '/'
+    full_fileNewName = dir_QuarterReports + fileNewName
+
+    # Расчет периодов отчетности
+    period = Period(year, quarter)
+    # устанавливаем 'period' как глобальную переменную (включая модули)
     builtins.period = period
 
     # название файла - Шаблон
@@ -24,27 +30,23 @@ if __name__ == "__main__":
     else:
         file_shablon = file_shablon_year
 
-    # Создаем новый файл отчетности на основе файла-шаблона
-    file_new_name = load_xbrl(file_shablon, file_dir=dir_shablon)
-
-    # путь к папке с файлами текущей отчетности
-    dir_file_report = os.path.dirname(file_new_name) + '/'
-    # имя файла без пути
-    file_new_name_only = os.path.basename(file_new_name)
+    # Создаем новый файл отчетности xbrl, создав копию шаблона
+    shutil.copyfile(dir_shablon + file_shablon, full_fileNewName)
+    print(f'создан файл: {full_fileNewName}')
 
     # ....................................
     # Включаем логировние
-    log = logger.create_log(path=dir_file_report,
-                     file_log=file_new_name_only + log_endName,
-                     file_debug=file_new_name_only + debug_endName
+    log = logger.create_log(path=dir_QuarterReports,
+                     file_log=fileNewName + log_endName,
+                     file_debug=fileNewName + debug_endName
                      )
     # устанавливаем 'log' как глобальную переменную (включая модули)
     builtins.log = log
 
     # Загружаем данные из нового файла таблицы xbrl
-    wb = openpyxl.load_workbook(filename=file_new_name)
+    wb = openpyxl.load_workbook(filename=full_fileNewName)
     # Формируем формы Бух.отчетности
-    BuhOtch.buhOtchot(wb, dir_file_report, dir_shablon, period)
+    BuhOtch.buhOtchot(wb, dir_QuarterReports, dir_shablon, period)
 
     # Сохраняем результат
-    wb.save(file_new_name)
+    wb.save(full_fileNewName)

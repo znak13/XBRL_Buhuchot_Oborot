@@ -3,39 +3,36 @@
 from datetime import timedelta, datetime
 
 # ----------------------------------------------
-def choose():
-    """ Ввод периода отчетности """
-    reports = {'0': 'годовая',
-               '1': '1-ый квартал',
-               '2': '2-ой квартал',
-               '3': '3-ий квартал'}
-               # '4': '4-ый квартал'}
-    period = -1
-    attempt = 1 # номер попытки
-    while period not in reports:
-        period = input(f"Период отчетности:\n"
-                       f"0 ==> {reports['0']}\n"
-                       f"1 ==> {reports['1']}\n"
-                       f"2 ==> {reports['2']}\n"
-                       f"3 ==> {reports['3']}\n")
-                       # f"4 ==> {reports['4']}\n")
-
-        # Проверка корректности ввода периода
-        if period not in reports:
-            print(f'Выбор "{period}" - не верный. Попоробуйте ещё.\n')
-            attempt += 1
-            print(f'(попытка № {attempt})')
-
-        else:
-            print(f'Выбрана отчетность: {reports[period]}')
-
-    return int(period)
+# def choose():
+#     """ Ввод периода отчетности """
+#     reports = {'0': 'годовая',
+#                '1': '1-ый квартал',
+#                '2': '2-ой квартал',
+#                '3': '3-ий квартал'}
+#                # '4': '4-ый квартал'}
+#     period = -1
+#     attempt = 1 # номер попытки
+#     while period not in reports:
+#         period = input(f"Период отчетности:\n"
+#                        f"0 ==> {reports['0']}\n"
+#                        f"1 ==> {reports['1']}\n"
+#                        f"2 ==> {reports['2']}\n"
+#                        f"3 ==> {reports['3']}\n")
+#                        # f"4 ==> {reports['4']}\n")
+#
+#         # Проверка корректности ввода периода
+#         if period not in reports:
+#             print(f'Выбор "{period}" - не верный. Попоробуйте ещё.\n')
+#             attempt += 1
+#             print(f'(попытка № {attempt})')
+#
+#         else:
+#             print(f'Выбрана отчетность: {reports[period]}')
+#
+#     return int(period)
 # ----------------------------------------------
-
-# ----------------------------------------------
-def dates():
+def dates(year = 2020):
     # Существующие периоды
-    year = 2020
     return  [datetime(year, 1, 1), datetime(year, 12, 31)], \
             [datetime(year, 1, 1), datetime(year, 3, 31)], \
             [datetime(year, 4, 1), datetime(year, 6, 30)], \
@@ -60,22 +57,31 @@ def period_dates(current, delta):
 # ----------------------------------------------
 
 class Period():
+    def __init__(self, year, quarter):
+        self.year = int(year)
+        self.quarter = quarter
+        self.set()
 
     def set(self):
 
         # Выбор периода
-        self.number = choose()
-        current = dates()[self.number]
+        # self.number = choose()
+        self.number = self.quarter
+
+        current = dates(year=self.year)[self.number]
 
         # Текущий период
         self.current_begin, self.current_end, self.current, \
-        self.current_year_begin, self.current_year_end, self.current_from_year = period_dates(current, 0)
+        self.current_year_begin, self.current_year_end, self.current_from_year \
+            = period_dates(current, 0)
         # Предыдущий период
         self.last_begin, self.last_end, self.last, \
-        self.last_year_begin, self.last_year_end, self.last_from_year = period_dates(current, 1)
+        self.last_year_begin, self.last_year_end, self.last_from_year \
+            = period_dates(current, 1)
         # Позапрошлый период
         self.before_last_begin, self.before_last_end, self.before_last, \
-        self.before_last_year_begin, self.before_last_year_end, self.before_last_from_year = period_dates(current, 2)
+        self.before_last_year_begin, self.before_last_year_end, self.before_last_from_year \
+            = period_dates(current, 2)
 
         # смешанные периоды
         self.current_mixed = self.current_from_year + ", " + \

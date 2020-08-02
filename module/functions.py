@@ -12,31 +12,12 @@ import sys
 import os
 
 from tkinter import Tk
-Tk().withdraw()
+# Tk().withdraw()
 
 from module.globals import *
 global log
 
 # %%
-
-# файл с ошибками
-# errors_file = 'errors.txt'
-ERRORS = []
-
-
-def write_errors(file):
-    """ Записываем ошибки в файл и открываем этот файл в Блокноте"""
-    if not ERRORS:
-        ERRORS.append('Ошибок не выявлено!')
-
-    with open(file, "w") as f:
-        for k in ERRORS:
-            f.write(str(k) + '\n\n')
-
-    # Открываем файл ошибок в Блокноте
-    notepad = r'%windir%\system32\notepad.exe'
-    file = notepad + ' ' + file
-    os.system(file)
 
 
 # %%
@@ -46,16 +27,6 @@ def coordinate(cell):
     row = data[1]
     col = column_index_from_string(data[0])
     return row, col
-
-
-# %%
-def load_matrica(matrica, sheet_name, index_col=1, file_dir=r'./Шаблоны/'):
-    """ загружвем данные из матрицы """
-    # file_matrica = r'./Шаблоны/Матрица_3_1.xlsx'
-    matrica = file_dir + matrica
-    df_matrica = pd.read_excel(matrica, sheet_name=sheet_name, index_col=index_col)
-
-    return df_matrica
 
 
 # %%
@@ -71,10 +42,10 @@ def load_report(file_name, sheet_name='TDSheet'):
 
 # %%
 
-def load_xbrl(file_shablon: str, file_dir=dir_shablon):
+def load_xbrl(file_shablon: str, file_dir=dir_shablon, newFile=None):
     """ Создаем новый файл xbrl"""
     # file_shablon - имя файла-шаблона
-
+    """
     # название нового файла-отчетности xbrl
     print(f'Создание файла отчетности....')
     file_new_name = asksaveasfilename(
@@ -86,18 +57,17 @@ def load_xbrl(file_shablon: str, file_dir=dir_shablon):
     # # запоминаем путь к файлу
     # dir_name = os.path.dirname(file_new_name)
     # # отбрасываем путь к файлу
-    # file_new = os.path.basename(file_new_name)
+    # file_new = os.path.basename(file_new_name)"""
 
     # --------------------------------------------
     # Создаем новый файл отчетности xbrl, создав копию шаблона
-    shutil.copyfile(file_dir + file_shablon, file_new_name)
-    print(f'создан файл: {file_new_name}')
+    shutil.copyfile(file_dir + file_shablon, newFile)
+    print(f'создан файл: {newFile}')
 
     # # Загружаем данные из файла таблицы xbrl
     # wb = openpyxl.load_workbook(filename=file_new_name)
 
-    return file_new_name
-
+    # return newFile
 
 # %%
 
@@ -113,11 +83,66 @@ def find_row(df, string, string_col=1):
         if title == str(string):  # title.startswith(str(string))
             return row
 
-    print(f'.......ERROR!.......'
-          f'Раздел: "{string}" в файле не найден')
-    ERRORS.append(f'Раздел: "{string}" в файле не найден')
-    # write_errors()
+    log.error(f'Раздел: "{string}" в файле не найден')
     sys.exit()
+
+
+# %%
+# def loadInfoSheets():
+#     """ Загружаем данные из файла с общими сведениями"""
+#     file_dir = r'./Шаблоны/'
+#     fileInfo = file_dir + "Шаблон_БухОтч_3_2_Общие сведения.xlsx"
+#     # Загружаем данные из файла таблицы 'fileInfo'
+#     wb_fileInfo = openpyxl.load_workbook(filename=fileInfo)
+#
+#     sheetsIgnor = ['_dropDownSheet']  # список листов, которые добавлять не нужно
+#     # исключаем ненужные листы
+#     for sheet in sheetsIgnor:
+#         try:
+#             wb_fileInfo.remove(wb_fileInfo[sheet])
+#         except KeyError:
+#             print(f'ВНИМАНИЕ! В файле "{os.path.basename(fileInfo)}" отсутствует лист "{sheet}"')
+#
+#     return wb_fileInfo
+
+
+# def correctStyle(fileName):
+#     """ Исправляем форматы ячеек в формах с общими данными"""
+#     # (исправить до записи в файл не получается: сохраняется некорректно)
+#
+#     # Загружаем данные из файла отчетности
+#     wb_xbrl = openpyxl.load_workbook(filename=fileName)
+#     # Загружаем данные из файла таблицы 'fileInfo'
+#     wb_fileInfo = loadInfoSheets()
+#
+#     for sheet in wb_fileInfo._sheets:
+#         ws_xbrl = wb_xbrl[sheet.title]
+#         # print('===>', sheet.title)
+#         for row in sheet.rows:
+#             for cell in row:
+#                 rgb = cell.fill.fgColor.rgb
+#                 # без фона (белый фон)
+#                 color_0 = openpyxl.styles.colors.Color(rgb='00000000', indexed=None, auto=None,
+#                                                        theme=None, tint=0.0, type='rgb')
+#                 # серый фон
+#                 color_1 = openpyxl.styles.colors.Color(rgb=None, indexed=22, auto=None,
+#                                                        theme=None, tint=0.0, type='indexed')
+#                 # перекрашиваем ячейки
+#                 if rgb == '00000000':
+#                     ws_xbrl[cell.coordinate].fill = PatternFill(patternType=None, fgColor=color_0)
+#                 else:
+#                     ws_xbrl[cell.coordinate].fill = PatternFill(patternType='solid', fgColor=color_1)
+#
+#                 # Копируем цвет шрифта
+#                 if cell.font.color != None:  # проверяем установлен ли цвет шрифта
+#                     fontColor = cell.font.color.rgb
+#                     # красный цвет
+#                     # color_font = openpyxl.styles.colors.Color(rgb='FFFF0000')
+#                     if type(fontColor) == str:
+#                         color_font = openpyxl.styles.colors.Color(rgb=fontColor)
+#                         ws_xbrl[cell.coordinate].font = Font(color=color_font)
+#
+#     wb_xbrl.save(fileName)
 
 
 # %%
@@ -137,66 +162,6 @@ def Codesofsheets(wb_xbrl):
 
     return codes
 
-
-# %%
-def loadInfoSheets():
-    """ Загружаем данные из файла с общими сведениями"""
-    file_dir = r'./Шаблоны/'
-    fileInfo = file_dir + "Шаблон_БухОтч_3_2_Общие сведения.xlsx"
-    # Загружаем данные из файла таблицы 'fileInfo'
-    wb_fileInfo = openpyxl.load_workbook(filename=fileInfo)
-
-    sheetsIgnor = ['_dropDownSheet']  # список листов, которые добавлять не нужно
-    # исключаем ненужные листы
-    for sheet in sheetsIgnor:
-        try:
-            wb_fileInfo.remove(wb_fileInfo[sheet])
-        except KeyError:
-            print(f'ВНИМАНИЕ! В файле "{os.path.basename(fileInfo)}" отсутствует лист "{sheet}"')
-
-    return wb_fileInfo
-
-
-def correctStyle(fileName):
-    """ Исправляем форматы ячеек в формах с общими данными"""
-    # (исправить до записи в файл не получается: сохраняется некорректно)
-
-    # Загружаем данные из файла отчетности
-    wb_xbrl = openpyxl.load_workbook(filename=fileName)
-    # Загружаем данные из файла таблицы 'fileInfo'
-    wb_fileInfo = loadInfoSheets()
-
-    for sheet in wb_fileInfo._sheets:
-        ws_xbrl = wb_xbrl[sheet.title]
-        # print('===>', sheet.title)
-        for row in sheet.rows:
-            for cell in row:
-                rgb = cell.fill.fgColor.rgb
-                # без фона (белый фон)
-                color_0 = openpyxl.styles.colors.Color(rgb='00000000', indexed=None, auto=None,
-                                                       theme=None, tint=0.0, type='rgb')
-                # серый фон
-                color_1 = openpyxl.styles.colors.Color(rgb=None, indexed=22, auto=None,
-                                                       theme=None, tint=0.0, type='indexed')
-                # перекрашиваем ячейки
-                if rgb == '00000000':
-                    ws_xbrl[cell.coordinate].fill = PatternFill(patternType=None, fgColor=color_0)
-                else:
-                    ws_xbrl[cell.coordinate].fill = PatternFill(patternType='solid', fgColor=color_1)
-
-                # Копируем цвет шрифта
-                if cell.font.color != None:  # проверяем установлен ли цвет шрифта
-                    fontColor = cell.font.color.rgb
-                    # красный цвет
-                    # color_font = openpyxl.styles.colors.Color(rgb='FFFF0000')
-                    if type(fontColor) == str:
-                        color_font = openpyxl.styles.colors.Color(rgb=fontColor)
-                        ws_xbrl[cell.coordinate].font = Font(color=color_font)
-
-    wb_xbrl.save(fileName)
-
-
-# %%
 def codesSheets(wb) -> dict:
     """ Словарь: URL и наименования листов """
     codes_sheets = {}
@@ -223,10 +188,8 @@ def sheetNameFromUrl(codesSheets: dict, shortURL: str) ->str:
         if url.endswith(shortURL):
             return codesSheets[url]
 
-    print(f'------>ERROR! - функция: "{sheetNameFromUrl.__name__}"')
-    ERRORS.append(f'В отчетном файле не найдено имя вкладки с кодом "{shortURL}"')
-    # write_errors(ERRORS, errors_file)
-    # sys.exit("Ошибка!")
+    log.error(f'функция: "{sheetNameFromUrl.__name__} - "'
+              f'В отчетном файле не найдено имя вкладки с кодом "{shortURL}"')
 
 # %%
 def findFile(fileCode, file_dir=None):
@@ -241,9 +204,6 @@ def findFile(fileCode, file_dir=None):
     # print(f'файл не найден')
     log.error(f'файл отчетности не найден')
     return False
-
-
-
 
 
 

@@ -21,4 +21,4 @@ log_endName = '_errors.log'
 debug_endName = '_debug.log'
 
 genDir = 'Тованчов Андрей Яковлевич'
-genDir_Dol = 'Генеральный директор'
+genDir_dolzhn = 'Генеральный директор'
