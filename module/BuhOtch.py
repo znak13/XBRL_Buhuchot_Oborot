@@ -2,7 +2,7 @@
 import os
 import sys
 import pandas as pd
-import xlwings as xw
+# import xlwings as xw
 
 from module.functions import find_row
 from module.functions import coordinate
@@ -77,7 +77,7 @@ def periodsInput(ws, per1_cell, per2_cell, period1, period2):
     # wb_per.close()
 
 # ============================================================
-def buhOtchot(wb, file_dir, dir_shablon, period):
+def buhOtchot(wb, file_dir, period):
     """Формирование форм отчетности"""
 
     def makeForm(fileCode, sheetCode, sectionName, stringMax, begin_cell,
@@ -1516,11 +1516,11 @@ def buhOtchot(wb, file_dir, dir_shablon, period):
         info_UK_OD()
     )
 
-    # makeFileXBRL(pril_34_1(), pril_34_1_Quarter())
-
-
+def main():
+    pass
 
 # ============================================================================
 
 if __name__ == "__main__":
+    main()
     pass

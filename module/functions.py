@@ -1,18 +1,15 @@
-import openpyxl
+# import openpyxl
+# from openpyxl.styles import Alignment, PatternFill, Font
+# from datetime import date
+# from tkinter.filedialog import askopenfilename, asksaveasfilename
+
 from openpyxl.utils.cell import coordinate_from_string
 from openpyxl.utils import column_index_from_string, get_column_letter
-from openpyxl.styles import Alignment, PatternFill, Font
-from datetime import date
 import pandas as pd
-
-from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 import shutil
 import sys
 import os
-
-from tkinter import Tk
-# Tk().withdraw()
 
 from module.globals import *
 global log
@@ -64,10 +61,6 @@ def load_xbrl(file_shablon: str, file_dir=dir_shablon, newFile=None):
     shutil.copyfile(file_dir + file_shablon, newFile)
     print(f'создан файл: {newFile}')
 
-    # # Загружаем данные из файла таблицы xbrl
-    # wb = openpyxl.load_workbook(filename=file_new_name)
-
-    # return newFile
 
 # %%
 

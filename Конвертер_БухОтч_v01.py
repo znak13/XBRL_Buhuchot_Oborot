@@ -1,5 +1,5 @@
 # import xlwings as xw
-# import openpyxl
+import openpyxl
 import builtins
 from module.functions import *
 from module import BuhOtch
@@ -8,7 +8,6 @@ from module.periods import Period
 import module.period_selection as selection
 
 from module.globals import *
-
 
 # %%
 
@@ -37,16 +36,16 @@ if __name__ == "__main__":
     # ....................................
     # Включаем логировние
     log = logger.create_log(path=dir_QuarterReports,
-                     file_log=fileNewName + log_endName,
-                     file_debug=fileNewName + debug_endName
-                     )
+                            file_log=fileNewName + log_endName,
+                            file_debug=fileNewName + debug_endName
+                            )
     # устанавливаем 'log' как глобальную переменную (включая модули)
     builtins.log = log
 
     # Загружаем данные из нового файла таблицы xbrl
     wb = openpyxl.load_workbook(filename=full_fileNewName)
     # Формируем формы Бух.отчетности
-    BuhOtch.buhOtchot(wb, dir_QuarterReports, dir_shablon, period)
+    BuhOtch.buhOtchot(wb, dir_QuarterReports, period)
 
     # Сохраняем результат
     wb.save(full_fileNewName)
