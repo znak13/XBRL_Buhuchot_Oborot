@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dir_QuarterReports += '/'
     full_fileNewName = dir_QuarterReports + fileNewName
 
-    # Расчет периодов отчетности
+    # Расчет необходимых дат и периодов отчетности
     period = Period(year, quarter)
     # устанавливаем 'period' как глобальную переменную (включая модули)
     builtins.period = period

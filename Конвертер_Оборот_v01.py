@@ -1,3 +1,4 @@
+import openpyxl
 from module.Oborot import oborotka
 from module.periods import Period
 # from module.analiz_data import *
