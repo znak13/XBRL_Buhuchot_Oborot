@@ -195,7 +195,7 @@ def findFile(fileCode, file_dir=None):
             return fileName
 
     # print(f'файл не найден')
-    log.error(f'файл отчетности не найден')
+    log.error(f'файл отчетности не найден ({fileCode})')
     return False
 
 

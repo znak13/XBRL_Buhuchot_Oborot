@@ -69,7 +69,7 @@ def copy_data(wb, sheetCode, urlSheets, file_dir, fileCode, sectionName, begin_c
                     # преобразуем данные
                     data_reropt = analiz_data_all(df_report.loc[row_report, col])
                     # копируем данные
-                    if data_reropt != '0.00':  # исключаем нулевые значения
+                    if data_reropt not in ['0.00','nan'] and data_reropt == data_reropt:  # исключаем нулевые значения
                         ws_xbrl_cell = ws_xbrl.cell(row_xbrl, begin_col_wb_xbrl + n)
                         ws_xbrl_cell.value = data_reropt
                         # Форматируем ячейку
@@ -77,7 +77,7 @@ def copy_data(wb, sheetCode, urlSheets, file_dir, fileCode, sectionName, begin_c
                 break
     print(f'.....готово')
 
-def oborotka(wb, FileNewName):
+def oborotka(wb, FileNewName, report_type):
     """ Формирование форм отчетности"""
     # file_dir - путь к файлом отчетности
 
@@ -190,6 +190,7 @@ def oborotka(wb, FileNewName):
         ws['B7'] = 'Тованчов Андрей Яковлевич'
 
     def repDohodRashod_UK():
+        # (Месячная отчетность!)
         # Сведения об отчитывающейся орга
         # Сведения об отчитывающейся организации (Информация о должностных лицах, ответственных за предметную область отчетности)
         # sr_sved_otch_org_otv_predm_obl
@@ -200,7 +201,9 @@ def oborotka(wb, FileNewName):
         ws = wb[sheetName]
         print(f'{sheetName} - {sheetCode}')
         # содержание ячейки
-        ws['A5'] = "T= " + period.current
+
+        ws['A11'] = "T= " + period.report_month
+
         ws['B7'] = 'Тованчов Андрей Яковлевич'
         ws['C7'] = 'Генеральный директор'
         ws['D7'] = '+7(863)2006110'
@@ -208,6 +211,31 @@ def oborotka(wb, FileNewName):
         ws['C8'] = ws['C7'].value
         ws['D8'] = ws['D7'].value
 
+        ws['A5'] = "T= " + period.current_from_year
+
+
+    def repDohodRashod_UK_quarter():
+        # (Квартальная отчетность!)
+        # Сведения об отчитывающейся орга
+        # Сведения об отчитывающейся организации (Информация о должностных лицах, ответственных за предметную область отчетности)
+        # sr_sved_otch_org_otv_predm_obl
+
+        # файл-xbrl
+        sheetCode = 'sr_sved_otch_org_otv_predm_obl'
+        sheetName = sheetNameFromUrl(urlSheets, sheetCode)  # имя вкладки
+        ws = wb[sheetName]
+        print(f'{sheetName} - {sheetCode}')
+        # содержание ячейки
+        ws['A5']  = "T= " + period.current_from_year
+        ws['A11'] = "T= " + period.report_month
+        ws['A17'] = "T= " + period.current
+
+        # ws['B7'] = 'Тованчов Андрей Яковлевич'
+        # ws['C7'] = 'Генеральный директор'
+        # ws['D7'] = '+7(863)2006110'
+        # ws['B8'] = ws['B7'].value
+        # ws['C8'] = ws['C7'].value
+        # ws['D8'] = ws['D7'].value
 
     # ===============================================================
 
@@ -222,7 +250,10 @@ def oborotka(wb, FileNewName):
     oborotka_FIO()
     repDohodRashod_01()
     repDohodRashod_FIO()
-    repDohodRashod_UK()
+    if report_type == 'month':
+        repDohodRashod_UK()
+    else:
+        repDohodRashod_UK_quarter()
 
 if __name__ == "__main__":
     pass

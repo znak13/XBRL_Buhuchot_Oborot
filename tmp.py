@@ -35,4 +35,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    a = 3
+    b = a
+    a = 7

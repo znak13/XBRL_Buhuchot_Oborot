@@ -4,8 +4,8 @@ import builtins
 from module.functions import *
 from module import BuhOtch
 from module import logger
-from module.periods import Period
-import module.period_selection as selection
+from module.periods import Period_2
+import module.period_selection_2 as selection
 
 from module.globals import *
 
@@ -14,24 +14,9 @@ from module.globals import *
 if __name__ == "__main__":
 
     # Выбор периода отчетности
-    year, quarter, dir_QuarterReports, fileNewName = selection.main()
+    year, month, dir_QuarterReports, fileNewName = selection.main()
     dir_QuarterReports += '/'
     full_fileNewName = dir_QuarterReports + fileNewName
-
-    # Расчет необходимых дат и периодов отчетности
-    period = Period(year, quarter)
-    # устанавливаем 'period' как глобальную переменную (включая модули)
-    builtins.period = period
-
-    # название файла - Шаблон
-    if period.number:
-        file_shablon = file_shablon_quarter
-    else:
-        file_shablon = file_shablon_year
-
-    # Создаем новый файл отчетности xbrl, создав копию шаблона
-    shutil.copyfile(dir_shablon + file_shablon, full_fileNewName)
-    print(f'создан файл: {full_fileNewName}')
 
     # ....................................
     # Включаем логировние
@@ -41,6 +26,36 @@ if __name__ == "__main__":
                             )
     # устанавливаем 'log' как глобальную переменную (включая модули)
     builtins.log = log
+
+    # Нужно проверить вобрана ли именно квартальная отчетность!!!
+
+    # Расчет необходимых дат и периодов отчетности
+    period = Period_2(year, month)
+    # устанавливаем 'period' как глобальную переменную (включая модули)
+    builtins.period = period
+
+    # название файла - Шаблон
+    if period.month in [3, 6, 9]:
+
+        # переменная введена дополнительно,
+        # т.к. она используется в дальнейших расчетах
+        period.number = True  # означает квартальную отчетность
+
+        file_shablon = file_shablon_quarter
+    elif period.month == 0:
+
+        # переменная введена дополнительно,
+        # т.к. она используется в дальнейших расчетах
+        period.number = False  # означает годовую отчетность
+
+        file_shablon = file_shablon_year
+    else:
+        log.error(f'Ошибка в выборе периода! Отчет не сформирован!')
+        sys.exit()
+
+    # Создаем новый файл отчетности xbrl, создав копию шаблона
+    shutil.copyfile(dir_shablon + file_shablon, full_fileNewName)
+    print(f'создан файл: {full_fileNewName}')
 
     # Загружаем данные из нового файла таблицы xbrl
     wb = openpyxl.load_workbook(filename=full_fileNewName)

@@ -14,7 +14,8 @@ file_shablon_quarter = 'Шаблон_БухОтч_3_2_квартал.xlsx'
 file_shablon_year    = 'Шаблон_БухОтч_3_2_год.xlsx'
 
 # название файла-шаблона - Оборотка
-file_shablon_oborot = 'Шаблон_Оборот_3_1.xlsx'
+file_shablon_oborot_month = 'Шаблон_Оборот_3_1 - месяц.xlsx'
+file_shablon_oborot_quarter = 'Шаблон_Оборот_3_1 - квартал.xlsx'
 
 # Окончание названий отладочных файлов
 log_endName = '_errors.log'
