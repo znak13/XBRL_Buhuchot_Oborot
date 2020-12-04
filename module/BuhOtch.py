@@ -9,10 +9,12 @@ from module.functions import coordinate
 from module.functions import codesSheets
 from module.functions import sheetNameFromUrl
 from module.functions import findFile
+from module.functions import dell_cells
 
 from module.analiz_data import analiz_data_all
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
+from openpyxl.utils import column_index_from_string, get_column_letter
 
 global log
 global period
@@ -787,6 +789,24 @@ def buhOtchot(wb, file_dir, period):
                  begin_col_df_report, end_col_df_report,
                  per1_cell, per2_cell, period1, period2)
 
+        # Удаляем лишние ячейки
+		# (не используется, т.к. в эта форма откорректирована "ручками": добавлены недостающие строки)
+        # dell_cells(wb, urlSheets, sheetCode)
+
+        # # Убираем лишние ячейки
+        # sheetName = sheetNameFromUrl(urlSheets, sheetCode)  # имя вкладки
+        # ws = wb[sheetName]
+        # row_start_1 = 7 # сначала "поднимаем" на одну строку, начиная с 7 строки
+        # row_start_2 = 14 # потом еще "поднимаем" на одну строку, начиная с 14 строки
+        # row_end = ws.max_row
+        # cols = [column_index_from_string('C'), column_index_from_string('D')]
+        #
+        # for row_start in [row_start_1, row_start_2]:
+        #     for row in range(row_start, row_end):
+        #         for col in cols:
+        #             ws.cell(row, col).value = ws.cell(row+1, col).value
+        #             ws.cell(row + 1, col).value = None
+
         return sheetCode
     # (2)..........................................................
     def pril_34_1_Quarter():
@@ -821,6 +841,10 @@ def buhOtchot(wb, file_dir, period):
         makeForm(fileCode, sheetCode, sectionName, stringMax, begin_cell,
                  begin_col_df_report, end_col_df_report,
                  per1_cell, per2_cell, period1, period2)
+
+        # Удаляем лишние ячейки
+        # (не используется, т.к. в эта форма откорректирована "ручками": добавлены недостающие строки)
+		# dell_cells(wb, urlSheets, sheetCode)
 
         return sheetCode
 

@@ -198,6 +198,26 @@ def findFile(fileCode, file_dir=None):
     log.error(f'файл отчетности не найден ({fileCode})')
     return False
 
+# %%
+def dell_cells(wb, urlSheets, sheetCode):
+    """Удаляем лишние ячейки"""
+    # формы:
+    # Процентные доходы - FR_3_006_01c_01 - 34.1 (2 и 3 квартал) Процентные доходы 532-П
+    # Процентные доходы За последний - FR_3_006_01c_01_LastQuarter - 34.1 (2 и 3 квартал) Процентные доходы 532-П
+
+    sheetName = sheetNameFromUrl(urlSheets, sheetCode)  # имя вкладки
+    ws = wb[sheetName]
+    row_start_1 = 7 # сначала "поднимаем" на одну строку, начиная с 7 строки
+    row_start_2 = 14 # потом еще "поднимаем" на одну строку, начиная с 14 строки
+    row_end = ws.max_row
+    cols = [column_index_from_string('C'), column_index_from_string('D')]
+
+    for row_start in [row_start_1, row_start_2]:
+        for row in range(row_start, row_end):
+            for col in cols:
+                ws.cell(row, col).value = ws.cell(row+1, col).value
+                ws.cell(row + 1, col).value = None
+
 
 
 # %%
