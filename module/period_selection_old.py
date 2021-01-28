@@ -22,9 +22,9 @@ class Periods(Frame):
 
     def initUI(self):
         def insert_txt(*args):
-            self.month = var.get()
+            self.quarter = var.get()
             self.year = combo.get()
-            txt = periods[self.month] + ' ' + self.year
+            txt = periods[self.quarter] + ' ' + self.year
             lbPeriod['text'] = txt
 
         self.parent.title("Выбор параметров отчета")
@@ -50,52 +50,31 @@ class Periods(Frame):
         quarterFrame = Frame(self, height=40, bg='')
         quarterFrame.pack(side='top', fill=X, ipady=5)
 
-        lbQuarter = Label(quarterFrame, text="Отчетный период:", width=16, anchor=W)
+        lbQuarter = Label(quarterFrame, text="Отчетный квартал:", width=16, anchor=W)
         lbQuarter.pack(side=LEFT, anchor=N, padx=5)
 
-        # periods = {0: 'Год',
-        #            1: 'январь',
-        #            2: 'февраль',
-        #            3: 'март'}
-
-        periods = ['ГОДОВАЯ отчетность',
-                   'январь',
-                   'февраль',
-                   'март     (I квартал)',
-                   'апрель',
-                   'май',
-                   'июнь     (II квартал)',
-                   'июль',
-                   'август',
-                   'сентябрь (III квартал)',
-                   'октябрь',
-                   'ноябрь',
-                   'декабрь  (IV квартал)']
+        periods = {0: 'Год',
+                   1: '1-ый квартал',
+                   2: '2-ой квартал',
+                   3: '3-ий квартал'}
 
         # выбора периода
         var = IntVar()
-        var.set(0)  # значение по умолчанию
+        var.set(1)  # значение по умолчанию
+        R1 = Radiobutton(quarterFrame, text=periods[1], variable=var,
+                         value=1, width=12, anchor=W, command=insert_txt)
+        R1.pack(anchor=W, padx=5)
+        R2 = Radiobutton(quarterFrame, text=periods[2], variable=var,
+                         value=2, width=12, anchor=W, command=insert_txt)
+        R2.pack(anchor=W, padx=5)
+        R3 = Radiobutton(quarterFrame, text=periods[3], variable=var,
+                         value=3, width=12, anchor=W, command=insert_txt)
+        R3.pack(anchor=W, padx=5)
+        R4 = Radiobutton(quarterFrame, text=periods[0], variable=var,
+                         value=0, width=12, anchor=W, command=insert_txt)
+        R4.pack(anchor=W, padx=5)
 
-        for i, p in enumerate(periods):
-            exec(f'R{i} = Radiobutton'
-                 f'(quarterFrame, text=periods[i], '
-                 f'variable=var, value={i}, width=20, '
-                 f'anchor=W, command=insert_txt)')
-            exec(f'R{i}.pack(anchor=W, padx=5)')
-
-        # R0 = Radiobutton(quarterFrame, text=periods[0], variable=var,
-        #                  value=0, width=20, anchor=W, command=insert_txt)
-        # R1.pack(anchor=W, padx=5)
-        #
-        # R2 = Radiobutton(quarterFrame, text=periods[1], variable=var,
-        #                  value=1, width=20, anchor=W, command=insert_txt)
-        # R2.pack(anchor=W, padx=5)
-        # ....
-        # R12 = Radiobutton(quarterFrame, text=periods[11], variable=var,
-        #                   value=11, width=20, anchor=W, command=insert_txt)
-        # R12.pack(anchor=W, padx=5)
-
-        self.month = var.get()
+        self.quarter = var.get()
         # ------------------------------------------------
         # Итоги выбора периода
         infoFrame = Frame(self, height=40, bg='')
@@ -136,7 +115,7 @@ class Periods(Frame):
             self.file_new = os.path.basename(self.file_new_name)
             lbFile['text'] = self.file_new
 
-        buttFile = Button(fileFrame, text="Выбрать имя файла...", width=18, anchor=W, command=file_dir)
+        buttFile = Button(fileFrame, text="Выбрать файлы...", width=16, anchor=W, command=file_dir)
         buttFile.grid(column=0, row=0, sticky=W, padx=5, pady=5)
 
         lbPathInfo = Label(fileFrame, text="Имя файла-xbrl:", width=16, anchor=W)
@@ -156,13 +135,13 @@ class Periods(Frame):
         # Кнопки выхода
         def doClose():
             self.todo = False
-            print('Close')
+            print ('Close')
             self.parent.quit()
             # self.parent.destroy()
-
+            quit()
         def doOK():
             self.todo = True
-            print('OK')
+            print ('OK')
             # self.parent.quit()
             self.parent.destroy()
 
@@ -172,62 +151,39 @@ class Periods(Frame):
         okButton.pack(side=RIGHT, anchor=S, padx=0, pady=5)
 
 
+
+
 # ======================================================================
 def main():
-    choice = False
-    # Выполняем пока не сделан корректный выбор периода
-    while not choice:
+    root_period = Tk()
+    root_period.geometry("360x350+600+300")
+    period_set = Periods(root_period)
+    root_period.mainloop()
 
-        root_period = Tk()
-        root_period.geometry("360x560+600+300")
-        period_set = Periods(root_period)
-        root_period.mainloop()
-
-        # проверяем как закрыто окно и выбран ли файл
-        # если файл не выбран, то повторяем цикл
-        try:
-            if period_set.todo:
-                if period_set.dir_name != "...":
-                    print(period_set.month, period_set.year)
-                    print(period_set.dir_name)
-                    print(period_set.file_new)
-                    choice = True
-                else:
-                    print(f'Не выбраны файлы для формирования отчета!\n'
-                          f'Попробуйте еще раз.')
-                    # начинаем цикл заново
-                    continue
+    # проверяем как закрыто окно и выбран ли файл
+    # если файл не выбран, то повторяем цикл
+    try:
+        if period_set.todo:
+            if period_set.dir_name != "...":
+                print(period_set.quarter, period_set.year)
+                print(period_set.dir_name)
+                print(period_set.file_new)
             else:
-                sys.exit()
-        except AttributeError:  # окно выбора закрыто не кнопкой
+                print(f'Не выбраны файлы для формирования отчета!\n'
+                      f'Попробуйте еще раз.')
+                main()
+        else:
             sys.exit()
-        except Exception as e:
-            print(f'{e}')
-            sys.exit()
+    except AttributeError: # окно выбора закрыто не кнопкой
+        sys.exit()
+    except Exception as e:
+        print(f'{e}')
+        sys.exit()
 
     return period_set.year, \
-           period_set.month, \
+           period_set.quarter, \
            period_set.dir_name, \
            period_set.file_new
 
-
 if __name__ == '__main__':
-    year, \
-    month, \
-    dir_name, \
-    file_new = \
-        main()
-
-    # periods = ['январь',
-    #            'февраль',
-    #            'март',
-    #            'апрель']
-    # R = [m for m, p in enumerate(periods)]
-
-    # for i, R in enumerate(periods):
-    #     print(f'{i} - {R}')
-
-    # root_period = Tk()
-    # root_period.geometry("360x550+600+300")
-    # period_set = Periods(root_period)
-    # root_period.mainloop()
+   pass

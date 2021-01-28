@@ -219,8 +219,19 @@ def dell_cells(wb, urlSheets, sheetCode):
                 ws.cell(row + 1, col).value = None
 
 
+# %%
+def insert_taxonomiya(txt: str, tax_number: str):
+    """Вставляем в строку дату таксономии"""
+    # формат строки 'txt': 'http://www.cbr.ru/xbrl/bfo/rep/2019-12-31/tab/FR_2_020_03c_01'
+    txt_list = txt.split('/')
+    txt_list[-3] = taxonomiya[tax_number]
+    return '/'.join(txt_list)
+
 
 # %%
 if __name__ == "__main__":
+    t1 = 'http://www.cbr.ru/xbrl/bfo/rep/2019-12-31/tab/FR_2_020_03c_01'
+    t2 = insert_taxonomiya(t1, '3.1')
+
     pass
 

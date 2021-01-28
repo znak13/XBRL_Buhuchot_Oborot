@@ -4,8 +4,8 @@ import builtins
 from module.functions import *
 from module import BuhOtch
 from module import logger
-from module.periods import Period_2
-import module.period_selection_2 as selection
+from module.periods import Period
+import module.period_selection as selection
 
 from module.globals import *
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # Нужно проверить вобрана ли именно квартальная отчетность!!!
 
     # Расчет необходимых дат и периодов отчетности
-    period = Period_2(year, month)
+    period = Period(year, month)
     # устанавливаем 'period' как глобальную переменную (включая модули)
     builtins.period = period
 
@@ -50,17 +50,24 @@ if __name__ == "__main__":
 
         file_shablon = file_shablon_year
     else:
-        log.error(f'Ошибка в выборе периода! Отчет не сформирован!')
+        log.error(f'Ошибка в выборе периода! Отчет не сформирован! \n'
+                  f'(Проверьте корректность указания периода в случае формирования бух.отчетности:\n'
+                  f' - для годовой бух.отчетности необходимо выбрать первый пункт: "ГОДОВАЯ отчетность",\n'
+                  f' - бух.отчетность может быть только квартальная(!).')
         sys.exit()
 
     # Создаем новый файл отчетности xbrl, создав копию шаблона
     shutil.copyfile(dir_shablon + file_shablon, full_fileNewName)
-    print(f'создан файл: {full_fileNewName}')
+    # print(f'создан файл: {full_fileNewName}')
+    log.info(f'создан файл: {full_fileNewName}')
 
     # Загружаем данные из нового файла таблицы xbrl
     wb = openpyxl.load_workbook(filename=full_fileNewName)
+
     # Формируем формы Бух.отчетности
     BuhOtch.buhOtchot(wb, dir_QuarterReports, period)
 
     # Сохраняем результат
     wb.save(full_fileNewName)
+
+    print('Вроде всё ОК!......')

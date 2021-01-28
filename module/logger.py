@@ -1,5 +1,6 @@
 import logging
 
+
 # Определение глобальной переменной
 # import builtins
 # log =  log = logger.create_log(...)
@@ -12,7 +13,7 @@ def create_log(path="",
     # path - путь к лог-файлам
 
     logging.basicConfig(level=logging.DEBUG,
-                        filename=path+file_debug,
+                        filename=path + file_debug,
                         filemode=filemode,
                         format='%(asctime)s - %(levelname)s - %(name)s - '
                                'модуль:"%(module)s":%(lineno)d - %(message)s')
@@ -23,7 +24,7 @@ def create_log(path="",
     # Create handlers
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(path + file_log, mode=mode)
-    c_handler.setLevel(logging.WARNING)
+    c_handler.setLevel(logging.INFO)
     f_handler.setLevel(logging.ERROR)
 
     # Create formatters and add it to handlers
